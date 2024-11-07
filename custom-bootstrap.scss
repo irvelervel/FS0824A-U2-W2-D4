@@ -1,0 +1,56 @@
+// lo scopo di oggi è creare una versione personalizzata di bootstrap (vogliamo ottenere un "custom-bootstrap.css")
+// per farlo dovremo utilizzare i sorgenti presenti nella cartella "scss"
+// importando le parti che ci interessano, personalizzandole e ottenendo un risultato finale adeguato ai nostri intenti
+
+// cosa andremo a modificare?
+// colori, breakpoints, spaziature etc.
+
+// COLORI
+// i colori sono definiti nel partial "_variables.scss"; questo partial contiene però dei riferimenti ad altre mappe e mixin definiti in "_functions.scss", quindi quest'ultimo andrà importato PRIMA
+@import './scss/functions';
+// ora possiamo importare "_variables.scss"
+@import './scss/variables';
+// ora tutti i colori (primary, secondary etc.) sono definiti e posso utilizzarli/sovrascriverli
+
+// ora abbiamo accesso alle definizioni dei colori fondamentali di bootstrap e soprattutto alla varibile "$theme-colors", che li raggruppa in una mappa
+
+// proviamo a modificare i colori principali
+$new-primary: rgb(200, 130, 40);
+$new-secondary: rgb(50, 50, 220);
+$new-success: rgb(40, 200, 40);
+$paperino: rgb(100, 30, 190);
+
+// a questo punto li andiamo ad inserire in una nostra versione di "$theme-colors", che in ultimo luogo andremo a FONDERE con la vera $theme-colors
+$new-theme-colors: (
+  'primary': $new-primary,
+  'secondary': $new-secondary,
+  'success': $new-success,
+  'paperino': $paperino,
+);
+
+// andiamo ora a modificare i breakpoints
+$new-grid-breakpoints: (
+  'md': 800px,
+  'moltogrosso': 1250px,
+);
+
+// infine creiamo un nuovo valore "6" per tutti gli spacers
+$new-spacers: (
+  6: $spacer * 5,
+  // $spacer è una variabile bs che di default vale 1rem
+);
+
+$spacers: map-merge($spacers, $new-spacers);
+
+$grid-breakpoints: map-merge($grid-breakpoints, $new-grid-breakpoints);
+
+// a questo punti andiamo a SOVRAPPORRE la nostra $new-theme-colors sull'originale $theme-colors: i colori con nomi uguali (quindi primary, secondary e success) andranno a venire SOVRASCRITTI, ma quelli che non ho toccato (info, warning, danger) manterranno il valore originale
+$theme-colors: map-merge($theme-colors, $new-theme-colors);
+// quindi ora la mappa di bootstrap $theme-colors è stata modificata con le nostre aggiunte!
+
+// siamo quasi alla fine! come dico a bootstrap di proseguire la sua compilazione utilizzando la nostra $theme-colors modificata per generare tutti i colori, tutti i background, i bottoni, gli alert etc.?
+
+@import './scss/bootstrap.scss';
+// con questo import finale io re-incanalo le mie modifiche (i miei colori personalizzati, i miei breakpoints etc.) nel flow di generazione di bootstrap, al fine di ottenere la versione compilata.
+// poichè praticamente TUTTE le variabili SASS di bootstrap sono dichiarate nei sorgenti con un flag !default, le mie dichiarazione in questo file NON verranno ri-sovrascritte dagli originali con questo ultimo import
+// !default vuol dire: se questa variabile ESISTE GIÀ (come il nostro $theme-colors definito più in alto), non la vado a ri-sovrascrivere
